@@ -9,6 +9,8 @@
     #-3rd milestone
 #final product - MEL spectogram of the recorded frame
 #test
+
+
 import pyaudio
 import time
 import librosa
@@ -20,24 +22,27 @@ def scale_minmax(X, min=0.0, max=1.0):
     X_std = (X - X.min()) / (X.max() - X.min())
     X_scaled = X_std * (max - min) + min
     return X_scaled
+
+
 #Initiating pyaudio
 #-Assign variables for the details needed
 PATH =  r'D:\Personal\PROJECT\Qualia\DEFECT DETECTION\DATASET\TRAINING DATASET'
 CHUNK = 1024
 FORMAT = pyaudio.paInt16
-CHANNELS = 2
-RATE = 44100 #mostly used for high quality Audio- 441khz = 16bits * 44100 = 1 411 200 bits / seconds
+CHANNELS = 1
+RATE = 22050 #mostly used for high quality Audio- 441khz = 16bits * 44100 = 1 411 200 bits / seconds
 RECORD_SECONDS = 6
 
-p = pyaudio.PyAudio()
-stream = p.open(format=pyaudio.paInt16, channels=1, rate=RATE, input=True, frames_per_buffer=CHUNK)
+p = pyaudio.PyAudio() #initiate pyaudio
+stream = p.open(format=pyaudio.paInt16, channels=CHANNELS
+                , rate=RATE, input=True, frames_per_buffer=CHUNK)
 
 # Listen to MIC for 5 seconds
 import numpy as np
 def rec(seconds,samplerate): # record and convert data to array for (x) seconds
 
     npsound = []#Initiate empty list to collect 16-bit samples
-    samplerate = RATE
+
 
     time_end = time.time()+seconds
     while time.time()<time_end:
@@ -60,37 +65,53 @@ def melspectrogram(X,samplerate):#input sample points
 
 #Run loop, to only record after the tapping is triggered
 
-i = 0
-
-while True:
-
-
-    if i%2 == 0:
-        # print('saving{}'.format(i))
-        samplepoints = rec(1,RATE)
-       # print(samplepoints)
-        #print(len(samplepoints))
-        S_dB = melspectrogram(samplepoints,RATE)
-        #print(S_dB)
-        img = scale_minmax(S_dB, 0, 255).astype(np.uint8)
-        #img = librosa.display.specshow(S_dB, x_axis='time', y_axis='mel', sr=sr, fmax=8000, ax=ax)
-
-        img = np.flip(S_dB, axis=0)  # put low frequencies at the bottom in image
-        skimage.io.imsave(r'D:\Personal\PROJECT\Qualia\DEFECT DETECTION\DATASET\TRAINING DATASET\graph{}.png'.format(i),img)
-
-        i = i + 1
-        print(i)
-        time.sleep(5)
-
-
-    elif i > 20:
-        break
-
-    else:
-        i = i + 1
+# i = 0
+#
+# while True:
+#
+#
+#     if i%2 == 0:
+#         # print('saving{}'.format(i))
+#         samplepoints = rec(1,RATE)
+#        # print(samplepoints)
+#         #print(len(samplepoints))
+#         S_dB = melspectrogram(samplepoints,RATE)
+#         #print(S_dB)
+#         img = scale_minmax(S_dB, 0, 255).astype(np.uint8)
+#         #img = librosa.display.specshow(S_dB, x_axis='time', y_axis='mel', sr=sr, fmax=8000, ax=ax)
+#
+#         img = np.flip(S_dB, axis=0)  # put low frequencies at the bottom in image
+#         skimage.io.imsave(r'D:\Personal\PROJECT\Qualia\DEFECT DETECTION\DATASET\TRAINING DATASET\graph{}.png'.format(i),img)
+#
+#         i = i + 1
+#         print(i)
+#         time.sleep(5)
+#
+#
+#     elif i > 20:
+#         break
+#
+#     else:
+#         i = i + 1
 
 
 # def troubleshoot():#function to check value of all graphs /TODO Plot multiple graph at each domain
+
+
+ypoints = rec(5,RATE)
+print(len(ypoints))
+xpoints = np.linspace(0,len(ypoints), num=len(ypoints))
+print(xpoints)
+plt.figure(1)
+plt.plot(xpoints,ypoints)
+S_dB = melspectrogram(xpoints,RATE)
+print(S_dB)
+img = scale_minmax(S_dB, 0, 255).astype(np.uint8)
+#img = librosa.display.specshow(S_dB, x_axis='time', y_axis='mel', sr=220500, fmax=8000,)
+img = np.flip(S_dB, axis=0)  # put low frequencies at the bottom in image
+#plt.show()
+plt.imshow(img)
+
 #     rec(1,44100)
 #     fig, ax = plt.subplots(1, figsize=(15, 7))
 #     ax.set_title('Trouble shoot to see audio wave')
